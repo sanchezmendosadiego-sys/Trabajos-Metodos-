@@ -1,0 +1,56 @@
+# Importar las librerias
+from sqlalchemy import Column,Date, Numeric, Integer, String, create_engine, Text, desc
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from datetime import date
+import pandas as pd
+
+# Informacion de la conexión a la base de datos de postgreSQL
+USER = "user"
+PASSWORD = "password"
+HOST = "localhost"
+PORT = "5432"
+DB_NAME = "database"
+
+DATABASE_URL = f"postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{DB_NAME}"
+
+# Creating a Database Connection
+
+# SQLAlchemy creates database connections using create_engine() function. This function takes a
+# connection URL and returns an engine object, which manages the connection between Python and the database.
+
+
+engine = create_engine(DATABASE_URL)
+
+# Declarar la base para los modelos
+Base = declarative_base()
+
+
+#  Definir la clase (tabla 'nombre-de-la-tabla')
+class nombre_tabla(Base):
+  __tablename__ = "nombre_tabla"
+
+  col1 = Column(Tipo_dato, primary_key=True, autoincrement=True)
+  col2 = Column(Tipo_dato, nullable=False)
+  col3 = Column(Tipo_dato, nullable=False)
+
+
+# Crear las tablas en la base de datos
+Base.metadata.create_all(bind=engine)
+
+#  Crear una sesión para interactuar con la BD
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+session = SessionLocal()
+
+fecha_inicio = "dd-mm-yyyy"
+fecha_fin = "dd-mm-yyyy"
+
+mi_query= session.query(Class_name).filter(Class_name.col_name.between(fecha_inicio, fecha_fin))
+df = pd.read_sql(mi_query.statement, session.bind)
+
+# Cerrar sesión
+session.close()
+
+media = df['col-name'].astype(float).mean()
+varianza = df['col-name'].astype(float).var()
+desviacion_estandar = df['col-name'].astype(float).std()
